@@ -4,6 +4,8 @@ import org.openkinect.processing.*;
 //Kinect Library Object
 Kinect2 kinect2;
 
+int blobCounter = 0;
+
 
 float minThresh = 480;
 float maxThresh = 830;
@@ -20,7 +22,7 @@ ArrayList < Blob > blobs = new ArrayList < Blob > ();
 
 
 void setup() {
-  size(600, 400);
+  size(1000, 1400);
 
   //Kinect Setup
   kinect2 = new Kinect2(this);
@@ -48,7 +50,7 @@ void draw() {
   //image(img,0,0);
   //if (true) return;
 
-  //clear();
+  ArrayList<Blob> currentBlobs = new ArrayList<Blob>();
 
   int[] depth = kinect2.getRawDepth();
 
@@ -63,7 +65,7 @@ void draw() {
         img.pixels[offset] = color(255, 0, 0);
         
         boolean found = false;
-        for (Blob b : blobs) {
+        for (Blob b : currentBlobs) {
           if (b.isNear(x, y)) {
             b.add(x, y);
             found = true;
@@ -73,7 +75,7 @@ void draw() {
 
         if (!found) {
           Blob b = new Blob(x, y);
-          blobs.add(b);
+          currentBlobs.add(b);
         }
 
       } else {
@@ -81,22 +83,96 @@ void draw() {
       }
     }
   }
+  
+  
 
   img.updatePixels();
   image(img, 0, 0);
   
-  for (Blob b: blobs) {
-    println(b.size());
-    if (b.size() > 100) {
-      b.show();
-      //b.lines();
+  for (int i = currentBlobs.size()-1; i >= 0; i--) {
+    if (currentBlobs.get(i).size() < 500) {
+      currentBlobs.remove(i);
     }
   }
+
+  // There are no blobs!
+  if (blobs.isEmpty() && currentBlobs.size() > 0) {
+    println("Adding blobs!");
+    for (Blob b : currentBlobs) {
+      b.id = blobCounter;
+      blobs.add(b);
+      blobCounter++;
+    }
+  } else if (blobs.size() <= currentBlobs.size()) {
+    // Match whatever blobs you can match
+    for (Blob b : blobs) {
+      float recordD = 1000;
+      Blob matched = null;
+      for (Blob cb : currentBlobs) {
+        PVector centerB = b.getCenter();
+        PVector centerCB = cb.getCenter();         
+        float d = PVector.dist(centerB, centerCB);
+        if (d < recordD && !cb.taken) {
+          recordD = d; 
+          matched = cb;
+        }
+      }
+      matched.taken = true;
+      b.become(matched);
+    }
+
+    // Whatever is leftover make new blobs
+    for (Blob b : currentBlobs) {
+      if (!b.taken) {
+        b.id = blobCounter;
+        blobs.add(b);
+        blobCounter++;
+      }
+    }
+  } else if (blobs.size() > currentBlobs.size()) {
+    for (Blob b : blobs) {
+      b.taken = false;
+    }
+
+
+    // Match whatever blobs you can match
+    for (Blob cb : currentBlobs) {
+      float recordD = 1000;
+      Blob matched = null;
+      for (Blob b : blobs) {
+        PVector centerB = b.getCenter();
+        PVector centerCB = cb.getCenter();         
+        float d = PVector.dist(centerB, centerCB);
+        if (d < recordD && !b.taken) {
+          recordD = d; 
+          matched = b;
+        }
+      }
+      if (matched != null) {
+        matched.taken = true;
+        matched.become(cb);
+      }
+    }
+
+    for (int i = blobs.size() - 1; i >= 0; i--) {
+      Blob b = blobs.get(i);
+      if (!b.taken) {
+        blobs.remove(i);
+      }
+    }
+  }
+
+  for (Blob b : blobs) {
+    b.show();
+  } 
   
-   textAlign(RIGHT);
+  textAlign(RIGHT);
   fill(0);
-  text("blob count: " + blobs.size(), width-10, 25);
-  //text("color threshold: " + threshold, width-10, 50);
+  text(currentBlobs.size(), width-10, 40);
+  text(blobs.size(), width-10, 80);
+  textSize(24);
+  //text("color threshold: " + threshold, width-10, 50);  
+  //text("distance threshold: " + distThreshold, width-10, 25);
 }
 
 float distSq(float x1, float y1, float x2, float y2) {
