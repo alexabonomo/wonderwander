@@ -12,13 +12,14 @@ float maxThresh = 830;
 PImage img;
 
 float dist = 80;
+int maxLife = 50;
 
 color trackColor;
-float threshold = 20;
-float distThreshold = 20;
+float threshold = 40;
+float distThreshold = 50;
 
 
-ArrayList < Blob > blobs = new ArrayList < Blob > ();
+ArrayList <Blob> blobs = new ArrayList <Blob> ();
 
 
 void setup() {
@@ -87,7 +88,7 @@ void draw() {
   
 
   img.updatePixels();
-  image(img, 0, 0);
+  //image(img, 0, 0);
   
   for (int i = currentBlobs.size()-1; i >= 0; i--) {
     if (currentBlobs.get(i).size() < 500) {
@@ -150,6 +151,7 @@ void draw() {
       }
       if (matched != null) {
         matched.taken = true;
+        matched.lifespan = maxLife;
         matched.become(cb);
       }
     }
@@ -157,7 +159,9 @@ void draw() {
     for (int i = blobs.size() - 1; i >= 0; i--) {
       Blob b = blobs.get(i);
       if (!b.taken) {
-        blobs.remove(i);
+        if (b.checkLife()) {
+          blobs.remove(i);
+        }
       }
     }
   }
