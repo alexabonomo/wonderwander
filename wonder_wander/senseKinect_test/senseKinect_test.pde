@@ -6,7 +6,8 @@ Kinect2 kinect2;
 
 int blobCounter = 0;
 
-
+int canvasWidth;
+int canvasHeight;
 float minThresh = 480;
 float maxThresh = 830;
 PImage img;
@@ -22,48 +23,43 @@ float distThreshold = 50;
 ArrayList <Blob> blobs = new ArrayList <Blob> ();
 
 
+
 void setup() {
-  size(1000, 1400);
+  size(1920, 1080);
 
   //Kinect Setup
   kinect2 = new Kinect2(this);
   kinect2.initDepth();
   kinect2.initDevice();
+  
+  
   img = createImage(kinect2.depthWidth, kinect2.depthHeight, RGB);
-
+  
 
   randomSeed(0);
-  background(255);
-  stroke(255);
   strokeWeight(.1);
   noFill();
 
-  trackColor = color(255, 0, 0);
 
 }
 void draw() {
-  background(225,225,225);
+  //background(225,225,225);
 
   img.loadPixels();
-
-  //img.pixels[kinect2.depthWidth * 50 + 50] = color(255,0,0);
-  //img.updatePixels();
-  //image(img,0,0);
-  //if (true) return;
 
   ArrayList<Blob> currentBlobs = new ArrayList<Blob>();
 
   int[] depth = kinect2.getRawDepth();
-
-
+  
 
   for (int x = 0; x < kinect2.depthWidth; x+=1) {
     for (int y = 0; y < kinect2.depthHeight; y+=1) {
       int offset = x + y * kinect2.depthWidth;
       int d = depth[offset];
+      
 
       if (d > minThresh && d < maxThresh && x > 100) {
-        img.pixels[offset] = color(255, 0, 0);
+        img.pixels[offset] = color(100);
         
         boolean found = false;
         for (Blob b : currentBlobs) {
@@ -80,7 +76,7 @@ void draw() {
         }
 
       } else {
-        img.pixels[offset] = color(0);
+        img.pixels[offset] = color(255);
       }
     }
   }
@@ -89,6 +85,7 @@ void draw() {
 
   img.updatePixels();
   //image(img, 0, 0);
+  //println(kinect2.depthWidth, kinect2.depthHeight);
   
   for (int i = currentBlobs.size()-1; i >= 0; i--) {
     if (currentBlobs.get(i).size() < 500) {
@@ -168,13 +165,14 @@ void draw() {
 
   for (Blob b : blobs) {
     b.show();
+   
   } 
-  
-  textAlign(RIGHT);
-  fill(0);
-  text(currentBlobs.size(), width-10, 40);
-  text(blobs.size(), width-10, 80);
-  textSize(24);
+    
+  //textAlign(RIGHT);
+  //fill(0);
+  //text(currentBlobs.size(), width-10, 40);
+  //text(blobs.size(), width-10, 80);
+  //textSize(24);
   //text("color threshold: " + threshold, width-10, 50);  
   //text("distance threshold: " + distThreshold, width-10, 25);
 }
@@ -189,18 +187,18 @@ float distSq(float x1, float y1, float z1, float x2, float y2, float z2) {
   return d;
 }
 
+
 void keyPressed() {
-  //if (key == 'x') {
-  //  background(255);
-  //  lineHistory.clear();
-  //}
-  //if (key == 's') {
-  //  saveFrame( "sense/savedimages/action-######.tiff");
-  //}
+  if (key == 'x') {
+    background(255);
+  }
+  if (key == 's') {
+    saveFrame( "sense/savedimages/action-######.tiff");
+  }
   if (key == 'a') {
     distThreshold++;
   } else if (key == 'z') {
     distThreshold--;
   }
-  println(distThreshold);
+  //println(distThreshold);
 }

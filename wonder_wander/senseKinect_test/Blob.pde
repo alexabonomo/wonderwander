@@ -4,13 +4,17 @@ class Blob {
   float miny;
   float maxx;
   float maxy;
+  
   ArrayList history = new ArrayList();
+  float dist = 80;
   
   int id = 0;
   
   int lifespan = maxLife;
   
   boolean taken = false;
+  //ArrayList <Lines> newlines = new ArrayList <Lines> ();
+  
   
   
   Blob(float x, float y){
@@ -36,29 +40,46 @@ class Blob {
     rectMode(CORNERS);
     println(minx,miny,maxx,maxy);
     //rect(minx, miny, maxx, maxy);
-    //showLines();
+   
+   addLines();
+    
+   
+    //textAlign(CENTER);
+    //textSize(64);
+    //fill(0);
+    //text(id, minx + (maxx-minx)*0.5, maxy - 10);
+    //textSize(32);
+    //text(history.size(), minx + (maxx-minx)*0.5, miny - 10);
+  }
+  
+  void addLines() {
+
     
     pushStyle();
-    PVector d = new PVector((minx + maxx) / 2, (miny + maxy) / 2, 0);
+    PVector d = new PVector((maxx - minx)* 0.5 + minx, (maxy - miny)* 0.5 + miny);
     history.add(0, d);
     popStyle();
     
+    
     for (int p=0; p<history.size (); p++) {
+      
         PVector v = (PVector) history.get(p);
         float join = p/history.size() + d.dist(v)/dist;
       if (join < random(1.0)) {
         stroke(0);
         strokeWeight(.1);
-        line(d.x, d.y, v.x, v.y);
+        float newdx = map(d.x, 0, 512, 0, 1920);
+        float newvx = map(v.x, 0, 512, 0, 1920);
+        float newdy =map(d.y, 0, 424, 0, 1080);
+        float newvy =map(v.y, 0, 424, 0, 1080);
+        
+        
+        line(newdx, newdy, newvx, newvy);
+        println(d.x, d.y, v.x, v.y);
+        
       }
     }
     
-    textAlign(CENTER);
-    textSize(64);
-    fill(0);
-    text(id, minx + (maxx-minx)*0.5, maxy - 10);
-    textSize(32);
-    text(lifespan, minx + (maxx-minx)*0.5, miny - 10);
   }
   
   
