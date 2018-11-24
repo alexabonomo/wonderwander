@@ -23,7 +23,6 @@ float distThreshold = 50;
 ArrayList <Blob> blobs = new ArrayList <Blob> ();
 
 
-
 void setup() {
   size(1920, 1080);
 
@@ -37,6 +36,7 @@ void setup() {
   
 
   randomSeed(0);
+  colorMode(HSB);
   strokeWeight(.1);
   noFill();
 

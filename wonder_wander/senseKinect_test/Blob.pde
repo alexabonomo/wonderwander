@@ -4,6 +4,7 @@ class Blob {
   float miny;
   float maxx;
   float maxy;
+  spectrum rainbow;
   
   ArrayList history = new ArrayList();
   float dist = 80;
@@ -54,11 +55,12 @@ class Blob {
   
   void addLines() {
 
-    
     pushStyle();
     PVector d = new PVector((maxx - minx)* 0.5 + minx, (maxy - miny)* 0.5 + miny);
     history.add(0, d);
     popStyle();
+    
+    rainbow = new spectrum(0.05);
     
     
     for (int p=0; p<history.size (); p++) {
@@ -66,8 +68,8 @@ class Blob {
         PVector v = (PVector) history.get(p);
         float join = p/history.size() + d.dist(v)/dist;
       if (join < random(1.0)) {
-        stroke(0);
-        strokeWeight(.1);
+        stroke(rainbow.step());
+        strokeWeight(.4);
         float newdx = map(d.x, 0, 512, 0, 1920);
         float newvx = map(v.x, 0, 512, 0, 1920);
         float newdy =map(d.y, 0, 424, 0, 1080);
@@ -75,12 +77,50 @@ class Blob {
         
         
         line(newdx, newdy, newvx, newvy);
+      
         println(d.x, d.y, v.x, v.y);
         
       }
     }
     
   }
+ 
+  
+  class spectrum{
+    int colorOn;
+    float frequency;
+    boolean colorDecreasing = false;
+    color current;
+    spectrum(float freq){
+    frequency = freq;
+    colorOn = 0;
+    current = color(255);
+  }
+    color step(){
+      if(colorOn >= (9.6/frequency) && !colorDecreasing){
+        colorDecreasing = true;
+      }
+      if(colorOn <= 0 && colorDecreasing){
+        colorDecreasing = false;
+      }
+      if(colorDecreasing){
+        colorOn -=1;
+      }
+      else{
+        colorOn +=1;
+      }
+      int r = int(sin(frequency*colorOn)*127+128);
+      int g = int(sin(frequency*colorOn+2)*127+128);
+      int b = int(sin(frequency*colorOn+4)*127+128);
+      current = color(r,g,b);
+      return(current);
+    }
+    
+    void resetColor(){
+      colorOn = 0;
+      colorDecreasing = false;
+      }
+    }
   
   
   void add(float x, float y){
