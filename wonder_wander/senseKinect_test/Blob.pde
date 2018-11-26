@@ -40,7 +40,8 @@ class Blob {
     strokeWeight(2);
     rectMode(CORNERS);
     println(minx,miny,maxx,maxy);
-    //rect(minx, miny, maxx, maxy);
+    fill(0);
+    
    
    addLines();
     
@@ -69,11 +70,11 @@ class Blob {
         float join = p/history.size() + d.dist(v)/dist;
       if (join < random(1.0)) {
         stroke(rainbow.step());
-        strokeWeight(.4);
-        float newdx = map(d.x, 0, 512, 0, 1920);
-        float newvx = map(v.x, 0, 512, 0, 1920);
-        float newdy =map(d.y, 0, 424, 0, 1080);
-        float newvy =map(v.y, 0, 424, 0, 1080);
+        strokeWeight(.1);
+        float newdx = map(d.x, 0, 512, -512, 1920);
+        float newvx = map(v.x, 0, 512, -512, 1920);
+        float newdy =map(d.y, 0, 424, -424, 1080);
+        float newvy =map(v.y, 0, 424, -424, 1080);
         
         
         line(newdx, newdy, newvx, newvy);
@@ -93,31 +94,32 @@ class Blob {
     color current;
     spectrum(float freq){
     frequency = freq;
-    colorOn = 0;
+    colorOn = (230);
     current = color(255);
   }
     color step(){
       if(colorOn >= (9.6/frequency) && !colorDecreasing){
         colorDecreasing = true;
       }
-      if(colorOn <= 0 && colorDecreasing){
+      if(colorOn <= 0  && colorDecreasing){
         colorDecreasing = false;
       }
       if(colorDecreasing){
-        colorOn -=1;
+        colorOn -=.5;
       }
       else{
-        colorOn +=1;
+        colorOn +=.1;
       }
-      int r = int(sin(frequency*colorOn)*127+128);
-      int g = int(sin(frequency*colorOn+2)*127+128);
-      int b = int(sin(frequency*colorOn+4)*127+128);
-      current = color(r,g,b);
+      int r = int(sin(frequency*colorOn)*127 + random(90, 128));
+      int g = int(sin(frequency*colorOn+2)*127 + random(90, 128));
+      int b = int(sin(frequency*colorOn+4)*127 + random(90, 128));
+      int a = 10;
+      current = color(r,g,b,a);
       return(current);
     }
     
     void resetColor(){
-      colorOn = 0;
+      colorOn = 230;
       colorDecreasing = false;
       }
     }
