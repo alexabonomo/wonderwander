@@ -35,12 +35,6 @@ class Blob {
   }
     
   void show() {
-    stroke(255);
-    noFill();
-    strokeWeight(2);
-    rectMode(CORNERS);
-    println(minx,miny,maxx,maxy);
-    fill(0);
     
    
    addLines();
