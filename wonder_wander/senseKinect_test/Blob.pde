@@ -1,15 +1,25 @@
+
+import org.openkinect.processing.*;
+
+Kinect2 kinect2;
+
 class Blob {
   
   float minx;
   float miny;
   float maxx;
   float maxy;
+  
   spectrum rainbow;
+  
+  
   
   ArrayList history = new ArrayList();
   float dist = 80;
   
   int id = 0;
+  
+  int rx = 0;
   
   int lifespan = maxLife;
   
@@ -22,7 +32,7 @@ class Blob {
     minx = x;
     miny = y;
     maxx = x;
-    maxy = y;   
+    maxy = y;
   }
   
   boolean checkLife() {
@@ -33,11 +43,14 @@ class Blob {
       return false;
     }
   }
+  
+  
     
-  void show() {
-    
+  void show(PGraphics prism, PGraphics pyramid) {
    
-   addLines();
+    prismLines(prism);
+    drawShape(pyramid);
+    
     
    
     //textAlign(CENTER);
@@ -46,15 +59,21 @@ class Blob {
     //text(id, minx + (maxx-minx)*0.5, maxy - 10);
     //textSize(32);
     //text(history.size(), minx + (maxx-minx)*0.5, miny - 10);
-  }
+  }   
   
-  void addLines() {
+  void drawShape(PGraphics pyramid){
+    pyramid.ellipse((minx+maxx) / 2, (miny + maxy) / 2, 50, 50);
+    corners(pyramid, minx, miny);
+    corners(pyramid, maxx, miny);
+    corners(pyramid, minx, maxy);
+    corners(pyramid, maxx, maxy);
+  }
 
-    pushStyle();
-    PVector d = new PVector((maxx - minx)* 0.5 + minx, (maxy - miny)* 0.5 + miny);
-    history.add(0, d);
-    popStyle();
+  
+  void prismLines(PGraphics prism) {
     
+    PVector d = new PVector((maxx - minx)* 0.5 + minx, (maxy - miny)* 0.5 + miny);
+    history.add(0, d);    
     rainbow = new spectrum(0.05);
     
     
@@ -63,24 +82,23 @@ class Blob {
         PVector v = (PVector) history.get(p);
         float join = p/history.size() + d.dist(v)/dist;
       if (join < random(1.0)) {
-        stroke(rainbow.step());
-        strokeWeight(.1);
-        float newdx = map(d.x, 0, 512, -512, 1920);
-        float newvx = map(v.x, 0, 512, -512, 1920);
-        float newdy =map(d.y, 0, 424, -424, 1080);
-        float newvy =map(v.y, 0, 424, -424, 1080);
+        prism.stroke(rainbow.step());
+        prism.strokeWeight(1);
         
         
-        line(newdx, newdy, newvx, newvy);
+        prism.line(d.x, d.y, v.x, v.y);
+        //println("line made");
+        
+        //println(newdx, newdy, newvx, newvy);
       
-        println(d.x, d.y, v.x, v.y);
+        //println(d.x, d.y, v.x, v.y);
         
       }
     }
     
   }
- 
   
+
   class spectrum{
     int colorOn;
     float frequency;
@@ -123,7 +141,14 @@ class Blob {
     minx = min(minx, x);
     miny = min(miny, y);
     maxx = max(maxx, x);
-    maxy = max(maxy, y);  
+    maxy = max(maxy, y);
+    
+  }
+  
+          
+  void corners(PGraphics prism, float x, float y){
+    float diam = 10;    
+    prism.ellipse(x, y, diam, diam);
   }
   
   void become(Blob other) {
@@ -157,4 +182,5 @@ class Blob {
       return false;
     }
   }
+  
 }

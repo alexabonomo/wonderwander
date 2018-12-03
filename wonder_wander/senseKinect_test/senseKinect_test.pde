@@ -1,16 +1,14 @@
 import org.openkinect.processing.*;
 
 
-//Kinect Library Object
-Kinect2 kinect2;
-
 int blobCounter = 0;
 
-int canvasWidth;
-int canvasHeight;
 float minThresh = 480;
 float maxThresh = 830;
 PImage img;
+PGraphics prism;
+PGraphics pyramid;
+
 
 float dist = 80;
 int maxLife = 50;
@@ -18,13 +16,13 @@ int maxLife = 50;
 color trackColor;
 float threshold = 40;
 float distThreshold = 50;
-
+int frame = 0;
 
 ArrayList <Blob> blobs = new ArrayList <Blob> ();
 
 
 void setup() {
-  size(1920, 1080);
+  size(1920, 1080, P3D);
 
   //Kinect Setup
   kinect2 = new Kinect2(this);
@@ -34,6 +32,8 @@ void setup() {
   
   img = createImage(kinect2.depthWidth, kinect2.depthHeight, RGB);
   
+  prism = createGraphics(1920, 1080);
+  pyramid = createGraphics(1920, 1080);
 
   randomSeed(0);
   background(230);
@@ -45,13 +45,15 @@ void setup() {
 
 }
 void draw() {
-  //background(225,225,225);
+  frame ++;
+  background(225,225,225);
 
   img.loadPixels();
 
   ArrayList<Blob> currentBlobs = new ArrayList<Blob>();
 
   int[] depth = kinect2.getRawDepth();
+  
   
 
   for (int x = 0; x < kinect2.depthWidth; x+=1) {
@@ -63,22 +65,25 @@ void draw() {
       if (d > minThresh && d < maxThresh && x > 100) {
         img.pixels[offset] = color(100);
         
+        float newx = map(x, 0, 512, -100, 1920);
+        float newy =map(y, 0, 424, -100, 1080);
+
+        
         boolean found = false;
         for (Blob b : currentBlobs) {
-          if (b.isNear(x, y)) {
-            b.add(x, y);
+          if (b.isNear(newx, newy)) {
+            b.add(newx, newy);
             found = true;
             break;
           }
         }
 
         if (!found) {
-          Blob b = new Blob(x, y);
+          Blob b = new Blob(newx, newy);
           currentBlobs.add(b);
-        }
-
-      } else {
+        } else {
         img.pixels[offset] = color(255);
+        }
       }
     }
   }
@@ -87,8 +92,8 @@ void draw() {
 
   img.updatePixels();
   //image(img, 0, 0);
-  //println(kinect2.depthWidth, kinect2.depthHeight);
-  
+   
+ 
   for (int i = currentBlobs.size()-1; i >= 0; i--) {
     if (currentBlobs.get(i).size() < 500) {
       currentBlobs.remove(i);
@@ -165,10 +170,35 @@ void draw() {
     }
   }
 
+  prism.beginDraw();
+  pyramid.beginDraw();
+  pyramid.clear();
   for (Blob b : blobs) {
-    b.show();
-   
-  } 
+    b.show(prism, pyramid);
+  }
+  if (frame % 5 == 0) {
+    //prism.fill(230, 50);  
+    //prism.rect(0,0,1920,1080);
+    //prism.loadPixels();
+    //for (int i=0; i < prism.pixels.length; i++) {
+    //  float r = red(prism.pixels[i]);
+    //  float g = green(prism.pixels[i]);
+    //  float b = blue(prism.pixels[i]);
+    //  float a = alpha(prism.pixels[i]);
+    //  a = constrain(a-10,0,255);
+    //  prism.pixels[i] = color(r,g,b,a);      
+    //}
+    //prism.updatePixels();
+  }
+  prism.endDraw();  
+  pyramid.endDraw();
+  
+ 
+  //image(pyramid, 0,0);
+  image(prism, 0, 0);
+  
+
+ 
     
   //textAlign(RIGHT);
   //fill(0);
