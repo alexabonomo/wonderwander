@@ -9,17 +9,18 @@ class Blob {
   float miny;
   float maxx;
   float maxy;
+    
+  PShape square;
   
   spectrum rainbow;
   
   
   
   ArrayList history = new ArrayList();
-  float dist = 80;
+  float dist = 100;
   
   int id = 0;
   
-  int rx = 0;
   
   int lifespan = maxLife;
   
@@ -44,13 +45,11 @@ class Blob {
     }
   }
   
-  
     
-  void show(PGraphics prism, PGraphics pyramid) {
+  void show(PGraphics prism, PGraphics pyramid) { //int[] depth, int depthWidth
    
     prismLines(prism);
-    drawShape(pyramid);
-    
+    drawShape(pyramid);//depth, depthWidth
     
    
     //textAlign(CENTER);
@@ -61,14 +60,30 @@ class Blob {
     //text(history.size(), minx + (maxx-minx)*0.5, miny - 10);
   }   
   
-  void drawShape(PGraphics pyramid){
-    pyramid.ellipse((minx+maxx) / 2, (miny + maxy) / 2, 50, 50);
-    corners(pyramid, minx, miny);
-    corners(pyramid, maxx, miny);
-    corners(pyramid, minx, maxy);
-    corners(pyramid, maxx, maxy);
-  }
+void drawShape(PGraphics pyramid){ //int[] depth, int depthWidth
 
+
+  pyramid.stroke(240, 70);
+  pyramid.noFill();
+
+   for (int i=0; i<num; i++) {
+  
+    float sz = i*35;
+    float sw = map(sin(theta+TWO_PI/num*i), -1, 1, 1, 16);
+    pyramid.strokeWeight(sw);
+    pyramid.ellipse((minx+maxx) / 2, (miny + maxy) / 2, sz, sz);
+  }
+  theta += TWO_PI/frames;
+  
+}
+ 
+  //pyramid.ellipse((minx+maxx) / 2, (miny + maxy) / 2, 50, 50);
+        //corners(pyramid, minx, miny);
+        //corners(pyramid, maxx, miny);
+        //corners(pyramid, minx, maxy);
+        //corners(pyramid, maxx, maxy);
+ 
+  
   
   void prismLines(PGraphics prism) {
     
@@ -81,18 +96,12 @@ class Blob {
       
         PVector v = (PVector) history.get(p);
         float join = p/history.size() + d.dist(v)/dist;
-      if (join < random(1.0)) {
+      if (join < random(2.5)) {
         prism.stroke(rainbow.step());
-        prism.strokeWeight(1);
+        prism.strokeWeight(2);
         
         
         prism.line(d.x, d.y, v.x, v.y);
-        //println("line made");
-        
-        //println(newdx, newdy, newvx, newvy);
-      
-        //println(d.x, d.y, v.x, v.y);
-        
       }
     }
     
@@ -142,6 +151,7 @@ class Blob {
     miny = min(miny, y);
     maxx = max(maxx, x);
     maxy = max(maxy, y);
+    
     
   }
   

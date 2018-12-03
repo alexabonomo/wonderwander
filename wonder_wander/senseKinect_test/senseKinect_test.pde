@@ -1,36 +1,43 @@
 import org.openkinect.processing.*;
-
+import org.openkinect.freenect.*;
+import org.openkinect.freenect2.*;
 
 int blobCounter = 0;
 
-float minThresh = 480;
-float maxThresh = 830;
+float minThresh = 800;
+float maxThresh = 1300;
 PImage img;
 PGraphics prism;
 PGraphics pyramid;
 
-
 float dist = 80;
 int maxLife = 50;
 
-color trackColor;
 float threshold = 40;
 float distThreshold = 50;
 int frame = 0;
 
+
 ArrayList <Blob> blobs = new ArrayList <Blob> ();
+
+int num = 30, frames = 90;
+float theta;
+
 
 
 void setup() {
-  size(1920, 1080, P3D);
+  size(1920, 1080, P2D);
+  smooth();
 
   //Kinect Setup
   kinect2 = new Kinect2(this);
   kinect2.initDepth();
   kinect2.initDevice();
+
   
   
   img = createImage(kinect2.depthWidth, kinect2.depthHeight, RGB);
+  
   
   prism = createGraphics(1920, 1080);
   pyramid = createGraphics(1920, 1080);
@@ -39,10 +46,8 @@ void setup() {
   background(230);
   frameRate(15);
   colorMode(RGB);
-  strokeWeight(.1);
+  strokeWeight(1);
   noFill();
-
-
 }
 void draw() {
   frame ++;
@@ -53,6 +58,7 @@ void draw() {
   ArrayList<Blob> currentBlobs = new ArrayList<Blob>();
 
   int[] depth = kinect2.getRawDepth();
+  
   
   
 
@@ -74,6 +80,7 @@ void draw() {
           if (b.isNear(newx, newy)) {
             b.add(newx, newy);
             found = true;
+            depth[offset] = b.id;
             break;
           }
         }
@@ -81,9 +88,11 @@ void draw() {
         if (!found) {
           Blob b = new Blob(newx, newy);
           currentBlobs.add(b);
-        } else {
-        img.pixels[offset] = color(255);
+          //depth[offset] = b.id;
         }
+      } else {
+        img.pixels[offset] = color(255);
+        depth[offset] = -1;
       }
     }
   }
@@ -91,7 +100,7 @@ void draw() {
   
 
   img.updatePixels();
-  //image(img, 0, 0);
+  //image(img, -100, -100, 1920, 1080);
    
  
   for (int i = currentBlobs.size()-1; i >= 0; i--) {
@@ -174,28 +183,31 @@ void draw() {
   pyramid.beginDraw();
   pyramid.clear();
   for (Blob b : blobs) {
-    b.show(prism, pyramid);
+    b.show(prism, pyramid); //, depth, kinect2.depthWidth
+    
   }
   if (frame % 5 == 0) {
-    //prism.fill(230, 50);  
-    //prism.rect(0,0,1920,1080);
-    //prism.loadPixels();
-    //for (int i=0; i < prism.pixels.length; i++) {
-    //  float r = red(prism.pixels[i]);
-    //  float g = green(prism.pixels[i]);
-    //  float b = blue(prism.pixels[i]);
-    //  float a = alpha(prism.pixels[i]);
-    //  a = constrain(a-10,0,255);
-    //  prism.pixels[i] = color(r,g,b,a);      
-    //}
-    //prism.updatePixels();
+    prism.fill(230, 50);
+    prism.rect(0,0,1920,1080);
+    prism.loadPixels();
+    for (int i=0; i < prism.pixels.length; i++) {
+      float r = red(prism.pixels[i]);
+      float g = green(prism.pixels[i]);
+      float b = blue(prism.pixels[i]);
+      float a = alpha(prism.pixels[i]);
+      a = constrain(a-1,0,255);
+      prism.pixels[i] = color(r,g,b,a);      
+    }
+    prism.updatePixels();
   }
   prism.endDraw();  
   pyramid.endDraw();
   
  
   //image(pyramid, 0,0);
+
   image(prism, 0, 0);
+  image(pyramid, 0,0);
   
 
  
