@@ -7,7 +7,7 @@ float scale;
 int blobCounter = 0;
 
 float minThresh = 0;
-float maxThresh = 1000;
+float maxThresh = 1500;
 PImage img;
 PGraphics prism;
 PGraphics pyramid;
@@ -25,7 +25,7 @@ ArrayList <Blob> blobs = new ArrayList <Blob> ();
 
 
 void setup() {
-  size(1920, 1133, P2D);
+  fullScreen();
   smooth();
 
 

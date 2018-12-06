@@ -92,14 +92,10 @@ class Blob {
         prism.line(d.x, d.y, v.x, v.y);
         
         popStyle();
-        pushStyle();
-        //prism.blendMode(MULTIPLY);
-        prism.line(d.x, 0, v.x, 1133);
-        popStyle();
-        pushStyle();
-        //prism.blendMode(MULTIPLY);
-        prism.line(0, d.y, 1920, v.y);
-        popStyle();
+        
+        for (int i = 0; history.size() < 1; i++) {
+          history.remove(i);
+        }
         
        
         
